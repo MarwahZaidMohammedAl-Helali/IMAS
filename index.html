@@ -1,0 +1,1937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMAS Math Academy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #F4F4F4;
+            color: #333333;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 300px;
+            background-color: #002D62;
+            color: #FFFFFF;
+            overflow-y: auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Custom Scrollbar Styling */
+        .sidebar::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin: 5px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #1E73BE, #3AA44C);
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #3AA44C, #1E73BE);
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(58, 164, 76, 0.5);
+        }
+
+        .sidebar::-webkit-scrollbar-corner {
+            background: transparent;
+        }
+
+        /* Firefox scrollbar */
+        .sidebar {
+            scrollbar-width: thin;
+            scrollbar-color: #1E73BE rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar h1 {
+            font-size: 24px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #FFFFFF;
+        }
+
+        .level {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .level-header {
+            background-color: #0A1F44;
+            padding: 12px 15px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+
+        .level-header:hover {
+            background-color: #1E73BE;
+        }
+
+        .level-header.active {
+            background-color: #1E73BE;
+        }
+
+        .arrow {
+            transition: transform 0.3s;
+        }
+
+        .arrow.expanded {
+            transform: rotate(90deg);
+        }
+
+        .topics {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 0 0 8px 8px;
+            width: 100%;
+        }
+
+        .topics.expanded {
+            max-height: 600px;
+        }
+
+        .topic {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background-color 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .topic:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .topic.completed {
+            background-color: #3AA44C;
+        }
+
+        .topic.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .topic.active {
+            background-color: #1E73BE;
+        }
+
+        .progress-indicator {
+            font-size: 12px;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .score-display {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .score-display h3 {
+            margin-bottom: 10px;
+            color: #3AA44C;
+        }
+
+        .generate-certificate-btn {
+            background-color: #3AA44C;
+            color: #FFFFFF;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .generate-certificate-btn:hover {
+            background-color: #2d8f3f;
+        }
+
+        .main-content {
+            flex: 1;
+            background-color: #FFFFFF;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .quiz-container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .welcome-screen {
+            text-align: center;
+        }
+
+        .welcome-screen h2 {
+            color: #002D62;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .welcome-screen p {
+            color: #333333;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .question-container {
+            display: none;
+        }
+
+        .question-header {
+            margin-bottom: 30px;
+        }
+
+        .question-header h2 {
+            color: #002D62;
+            margin-bottom: 10px;
+        }
+
+        .question-progress {
+            background-color: #F4F4F4;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background-color: #3AA44C;
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .question {
+            background-color: #FFFFFF;
+            border: 2px solid #F4F4F4;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .question h3 {
+            color: #002D62;
+            font-size: 24px;
+            margin-bottom: 25px;
+        }
+
+        .options {
+            display: grid;
+            gap: 15px;
+        }
+
+        .option {
+            background-color: #F4F4F4;
+            border: 2px solid transparent;
+            padding: 15px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .option:hover {
+            border-color: #1E73BE;
+            background-color: rgba(30, 115, 190, 0.1);
+        }
+
+        .option.selected {
+            border-color: #002D62;
+            background-color: rgba(0, 45, 98, 0.1);
+        }
+
+        .option.correct {
+            border-color: #3AA44C;
+            background-color: rgba(58, 164, 76, 0.1);
+        }
+
+        .option.incorrect {
+            border-color: #dc3545;
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        .submit-btn {
+            background-color: #002D62;
+            color: #FFFFFF;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            background-color: #0A1F44;
+        }
+
+        .submit-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .feedback.correct {
+            background-color: rgba(58, 164, 76, 0.1);
+            color: #3AA44C;
+            border: 1px solid #3AA44C;
+        }
+
+        .feedback.incorrect {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+
+        .next-btn {
+            background-color: #3AA44C;
+            color: #FFFFFF;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 15px;
+        }
+
+        .next-btn:hover {
+            background-color: #2d8f3f;
+        }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .completion-screen h2 {
+            color: #3AA44C;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .completion-screen p {
+            color: #333333;
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .score-summary {
+            background-color: #F4F4F4;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+
+        .score-summary h3 {
+            color: #002D62;
+            margin-bottom: 15px;
+        }
+
+        .final-score {
+            font-size: 48px;
+            color: #3AA44C;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        /* Certificate Styles */
+        .certificate-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .certificate {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F4F4F4 100%);
+            width: 800px;
+            height: 600px;
+            border: 8px solid #002D62;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .certificate-header {
+            color: #002D62;
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #3AA44C;
+            padding-bottom: 10px;
+        }
+
+        .certificate-title {
+            color: #333333;
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+
+        .certificate-name {
+            color: #002D62;
+            font-size: 32px;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 15px;
+            border: 2px dashed #3AA44C;
+            border-radius: 10px;
+        }
+
+        .certificate-details {
+            color: #333333;
+            font-size: 18px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .certificate-score {
+            font-size: 48px;
+            color: #3AA44C;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .certificate-date {
+            color: #666666;
+            font-size: 16px;
+            margin-top: 30px;
+        }
+
+        .close-certificate {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .download-certificate {
+            background-color: #002D62;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        .name-input {
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #002D62;
+            border-radius: 8px;
+            margin: 10px;
+            width: 300px;
+        }
+
+        /* Enhanced Animations and Transitions */
+        .welcome-screen,
+        .question-container,
+        .completion-screen {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+
+        .question {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+
+        .option {
+            transition: all 0.3s ease-in-out, transform 0.2s ease-in-out;
+        }
+
+        .option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 115, 190, 0.2);
+        }
+
+        .option.selected {
+            transform: scale(1.02);
+        }
+
+        /* Animation Keyframes */
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Progress bar animation */
+        .progress-bar {
+            background: linear-gradient(90deg, #3AA44C, #2d8f3f);
+            background-size: 200% 100%;
+            animation: progressGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes progressGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Sidebar animations */
+        .level-header {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .level-header:hover {
+            transform: translateX(5px);
+        }
+
+        .topic {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .topic:hover {
+            transform: translateX(3px);
+        }
+
+        .topic.completed {
+            animation: completedGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes completedGlow {
+            0%, 100% { box-shadow: 0 0 5px rgba(58, 164, 76, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(58, 164, 76, 0.8); }
+        }
+
+        /* Professional Subtopic and Level Styling */
+        .subtopic-header {
+            background-color: rgba(255, 255, 255, 0.08);
+            padding: 12px 20px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border-left: 3px solid #1E73BE;
+            transition: all 0.3s ease;
+            display: block;
+            position: relative;
+            width: 100%;
+        }
+
+        .subtopic-header:hover {
+            background-color: rgba(255, 255, 255, 0.12);
+            transform: translateX(3px);
+        }
+
+        .subtopic-arrow {
+            color: #1E73BE;
+            font-size: 14px;
+            transition: transform 0.3s ease;
+            font-weight: bold;
+        }
+
+        .subtopic-arrow.expanded {
+            transform: rotate(90deg);
+        }
+
+        .levels-container {
+            margin-left: 0;
+            margin-bottom: 10px;
+            padding: 10px 20px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background-color: rgba(255, 255, 255, 0.02);
+            border-radius: 0 0 8px 8px;
+            width: 100%;
+            box-sizing: border-box;
+            display: block;
+            clear: both;
+        }
+
+        .level-item {
+            background-color: rgba(255, 255, 255, 0.05);
+            margin: 8px 0;
+            padding: 14px 18px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .level-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #1E73BE, #3AA44C);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .level-item:hover::before {
+            opacity: 1;
+        }
+
+        .level-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: rgba(30, 115, 190, 0.5);
+            transform: translateX(5px);
+        }
+
+        .level-item.completed {
+            background-color: rgba(58, 164, 76, 0.2);
+            border-color: #3AA44C;
+            animation: completedGlow 2s ease-in-out infinite;
+        }
+
+        .level-item.locked {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .level-item.locked:hover {
+            transform: none;
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Animation for levels appearing */
+        .levels-container[style*="max-height: 500px"] .level-item {
+            animation: slideInFromTop 0.5s ease-out forwards;
+        }
+
+        .levels-container[style*="max-height: 500px"] .level-item:nth-child(1) { animation-delay: 0.1s; }
+        .levels-container[style*="max-height: 500px"] .level-item:nth-child(2) { animation-delay: 0.2s; }
+        .levels-container[style*="max-height: 500px"] .level-item:nth-child(3) { animation-delay: 0.3s; }
+        .levels-container[style*="max-height: 500px"] .level-item:nth-child(4) { animation-delay: 0.4s; }
+        .levels-container[style*="max-height: 500px"] .level-item:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes slideInFromTop {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .level-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .level-name {
+            font-weight: 500;
+            font-size: 14px;
+            color: #FFFFFF;
+        }
+
+
+
+        .level-stats {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .retake-badge {
+            background-color: rgba(245, 158, 11, 0.3);
+            color: #FBBF24;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 30px;">
+                <img src="Logo.png" alt="IMAS Logo" style="width: 40px; height: 40px; margin-right: 15px;">
+                <h1>IMAS</h1>
+            </div>
+            <div id="levels-container"></div>
+            
+            <!-- Score Display -->
+            <!-- Removed score display as requested -->
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="quiz-container">
+                <!-- Welcome Screen -->
+                <div class="welcome-screen" id="welcome-screen">
+                    <h2>🎯 Welcome to IMAS Math Academy!</h2>
+                    <p style="margin-bottom: 30px; color: #666; font-size: 16px;">
+                        <br><br>
+                        <strong>Your journey to becoming a math ace begins here!</strong>
+                    </p>
+                   <button class="submit-btn" onclick="showFirstTopic()" style="margin-top: 30px; font-size: 18px; padding: 20px 40px;">
+                        🚀 Start Learning
+                    </button>
+                </div>
+
+                <!-- Question Container -->
+                <div class="question-container" id="question-container">
+                    <div class="question-header">
+                        <h2 id="topic-title"></h2>
+                        <div class="question-progress">
+                            <div class="progress-bar" id="progress-bar"></div>
+                        </div>
+                        <p id="question-counter"></p>
+                    </div>
+                    
+                    <div class="question" id="question-card">
+                        <h3 id="question-text"></h3>
+                        <div class="options" id="options-container"></div>
+                        <button class="submit-btn" id="submit-btn" onclick="checkAnswer()" disabled>Submit Answer</button>
+                        <div class="feedback" id="feedback"></div>
+                        <button class="next-btn" id="next-btn" onclick="nextQuestion()" style="display: none;">Next Question</button>
+                    </div>
+                </div>
+
+                <!-- Completion Screen -->
+                <div class="completion-screen" id="completion-screen">
+                    <h2>🎉 All Topics Completed!</h2>
+                    <div class="score-summary">
+                        <h3>Final Results</h3>
+                        <div class="final-score" id="final-score-display">0%</div>
+                        <div id="final-questions-summary">0/10 Questions Correct</div>
+                    </div>
+                    <p>Congratulations! You've completed all topics. Generate your certificate to commemorate your achievement!</p>
+                    <button class="generate-certificate-btn" onclick="showCertificateModal()" style="width: auto; padding: 15px 30px; font-size: 18px;">
+                        🏆 Generate Certificate
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Certificate Modal -->
+    <div class="certificate-modal" id="certificate-modal">
+        <div class="certificate" id="certificate">
+            <button class="close-certificate" onclick="closeCertificateModal()">×</button>
+            <div class="certificate-header">CERTIFICATE OF COMPLETION</div>
+            <div class="certificate-title">Learning Quiz Platform</div>
+            
+            <div style="margin: 30px 0;">This is to certify that</div>
+            
+            <input type="text" class="name-input" id="student-name" placeholder="Enter your name" 
+                   onkeyup="updateCertificateName()" style="display: block; margin: 20px auto;">
+            
+            <div class="certificate-name" id="certificate-name-display">Enter Your Name Above</div>
+            
+            <div class="certificate-details">
+                has successfully completed the Learning Quiz Program<br>
+                achieving a score of
+            </div>
+            
+            <div class="certificate-score" id="certificate-score">0%</div>
+            
+            <div class="certificate-details">
+                Out of 10 total questions
+            </div>
+            
+            <div class="certificate-date" id="certificate-date"></div>
+            
+            <button class="download-certificate" onclick="downloadCertificate()">Download Certificate</button>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            currentTopic: 0,
+            currentSubtopic: 0,
+            currentLevel: 0,
+            currentQuestion: 0,
+            selectedAnswer: null,
+            levelAnswers: {},
+            totalCorrectAnswers: 0,
+            totalQuestions: 20, // 2 topics × 2 subtopics × 5 levels × 1 question per level
+            currentLevelQuestions: [], // Store pre-generated questions for current level
+            mistakes: 5, // Start with 5 mistakes
+            retakes: 0, // Track number of retakes
+            currentLevelMistakes: 0 // Track mistakes in current level
+        };
+
+        // New Data Structure - Topics with subtopics and levels
+        const topics = [
+            {
+                name: "Multiplication & Division",
+                subtopics: [
+                    {
+                        name: "Multiplication",
+                        levels: [
+                            { name: "Level 1 (Easy)", difficulty: "easy" },
+                            { name: "Level 2 (Easy)", difficulty: "easy" },
+                            { name: "Level 3 (Mid)", difficulty: "mid" },
+                            { name: "Level 4 (Mid)", difficulty: "mid" },
+                            { name: "Level 5 (Mid)", difficulty: "mid" }
+                        ]
+                    },
+                    {
+                        name: "Division",
+                        levels: [
+                            { name: "Level 1 (Easy)", difficulty: "easy" },
+                            { name: "Level 2 (Easy)", difficulty: "easy" },
+                            { name: "Level 3 (Mid)", difficulty: "mid" },
+                            { name: "Level 4 (Mid)", difficulty: "mid" },
+                            { name: "Level 5 (Mid)", difficulty: "mid" }
+                        ]
+                    }
+                ]
+            },
+            {
+                name: "Addition & Subtraction",
+                subtopics: [
+                    {
+                        name: "Addition",
+                        levels: [
+                            { name: "Level 1 (Easy)", difficulty: "easy" },
+                            { name: "Level 2 (Easy)", difficulty: "easy" },
+                            { name: "Level 3 (Mid)", difficulty: "mid" },
+                            { name: "Level 4 (Mid)", difficulty: "mid" },
+                            { name: "Level 5 (Mid)", difficulty: "mid" }
+                        ]
+                    },
+                    {
+                        name: "Subtraction",
+                        levels: [
+                            { name: "Level 1 (Easy)", difficulty: "easy" },
+                            { name: "Level 2 (Easy)", difficulty: "easy" },
+                            { name: "Level 3 (Mid)", difficulty: "mid" },
+                            { name: "Level 4 (Mid)", difficulty: "mid" },
+                            { name: "Level 5 (Mid)", difficulty: "mid" }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        // Math questions generator with randomized numbers based on topic, subtopic, and level
+        function generateQuestions(topicIndex, subtopicIndex, levelIndex) {
+            const questions = [];
+            const currentTopic = topics[topicIndex];
+            const currentSubtopic = currentTopic.subtopics[subtopicIndex];
+            const currentLevel = currentSubtopic.levels[levelIndex];
+            const difficulty = currentLevel.difficulty;
+            
+            // Generate 1 question per level (as per new structure)
+            if (currentTopic.name === "Multiplication & Division") {
+                if (currentSubtopic.name === "Multiplication") {
+                    // Multiplication questions with difficulty scaling
+                    let num1, num2;
+                    if (difficulty === "easy") {
+                        num1 = Math.floor(Math.random() * 6) + 2; // 2-7
+                        num2 = Math.floor(Math.random() * 6) + 2; // 2-7
+                    } else { // mid
+                        num1 = Math.floor(Math.random() * 12) + 2; // 2-13
+                        num2 = Math.floor(Math.random() * 12) + 2; // 2-13
+                    }
+                    
+                    const correctAnswer = num1 * num2;
+                        const wrongAnswers = generateWrongAnswers(correctAnswer, 3);
+                        
+                        questions.push({
+                        question: `What is ${num1} × ${num2}?`,
+                            options: shuffleArray([correctAnswer.toString(), ...wrongAnswers]),
+                            correctAnswer: correctAnswer
+                        });
+                } else { // Division
+                    // Division questions with difficulty scaling
+                    let num2, result;
+                    if (difficulty === "easy") {
+                        num2 = Math.floor(Math.random() * 5) + 2; // 2-6
+                        result = Math.floor(Math.random() * 6) + 2; // 2-7
+                    } else { // mid
+                        num2 = Math.floor(Math.random() * 9) + 2; // 2-10
+                        result = Math.floor(Math.random() * 12) + 2; // 2-13
+                    }
+                    
+                    const num1 = num2 * result;
+                    const correctAnswer = result;
+                        const wrongAnswers = generateWrongAnswers(correctAnswer, 3);
+                        
+                        questions.push({
+                        question: `What is ${num1} ÷ ${num2}?`,
+                            options: shuffleArray([correctAnswer.toString(), ...wrongAnswers]),
+                            correctAnswer: correctAnswer
+                        });
+                    }
+            } else { // Addition & Subtraction
+                if (currentSubtopic.name === "Addition") {
+                    // Addition questions with difficulty scaling
+                    let num1, num2;
+                    if (difficulty === "easy") {
+                        num1 = Math.floor(Math.random() * 15) + 1; // 1-15
+                        num2 = Math.floor(Math.random() * 15) + 1; // 1-15
+                    } else { // mid
+                        num1 = Math.floor(Math.random() * 25) + 1; // 1-25
+                        num2 = Math.floor(Math.random() * 25) + 1; // 1-25
+                    }
+                    
+                    const correctAnswer = num1 + num2;
+                        const wrongAnswers = generateWrongAnswers(correctAnswer, 3);
+                        
+                        questions.push({
+                        question: `What is ${num1} + ${num2}?`,
+                            options: shuffleArray([correctAnswer.toString(), ...wrongAnswers]),
+                            correctAnswer: correctAnswer
+                        });
+                } else { // Subtraction
+                    // Subtraction questions with difficulty scaling
+                    let num1, num2;
+                    if (difficulty === "easy") {
+                        num1 = Math.floor(Math.random() * 20) + 10; // 10-29
+                        num2 = Math.floor(Math.random() * (num1 - 1)) + 1; // 1 to num1-1
+                    } else { // mid
+                        num1 = Math.floor(Math.random() * 40) + 20; // 20-59
+                        num2 = Math.floor(Math.random() * (num1 - 1)) + 1; // 1 to num1-1
+                    }
+                    
+                    const correctAnswer = num1 - num2;
+                        const wrongAnswers = generateWrongAnswers(correctAnswer, 3);
+                        
+                        questions.push({
+                        question: `What is ${num1} - ${num2}?`,
+                            options: shuffleArray([correctAnswer.toString(), ...wrongAnswers]),
+                            correctAnswer: correctAnswer
+                        });
+                }
+            }
+            
+            return questions;
+        }
+
+        // Helper function to generate wrong answers
+        function generateWrongAnswers(correctAnswer, count) {
+            const wrongAnswers = [];
+            while (wrongAnswers.length < count) {
+                const offset = Math.floor(Math.random() * 6) + 1;
+                const wrongAnswer = Math.random() > 0.5 ? 
+                    correctAnswer + offset : 
+                    Math.max(1, correctAnswer - offset);
+                
+                if (wrongAnswer !== correctAnswer && !wrongAnswers.includes(wrongAnswer.toString())) {
+                    wrongAnswers.push(wrongAnswer.toString());
+                }
+            }
+            return wrongAnswers;
+        }
+
+        // Helper function to shuffle array
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // Initialize level answers tracking
+        function initializeLevelAnswers() {
+            for (let topicIndex = 0; topicIndex < topics.length; topicIndex++) {
+                const topic = topics[topicIndex];
+                for (let subtopicIndex = 0; subtopicIndex < topic.subtopics.length; subtopicIndex++) {
+                    const subtopic = topic.subtopics[subtopicIndex];
+                    for (let levelIndex = 0; levelIndex < subtopic.levels.length; levelIndex++) {
+                        const key = `${topicIndex}-${subtopicIndex}-${levelIndex}`;
+                        if (!gameState.levelAnswers[key]) {
+                            gameState.levelAnswers[key] = {
+                            completed: false,
+                            correctAnswers: 0,
+                                totalQuestions: 1, // 1 question per level
+                                mistakes: 0,
+                                retakes: 0
+                            };
+                        }
+                    }
+                }
+            }
+        }
+
+        // Check if level is unlocked
+        function isLevelUnlocked(topicIndex, subtopicIndex, levelIndex) {
+            if (topicIndex === 0 && subtopicIndex === 0 && levelIndex === 0) return true;
+            
+            // For subsequent levels, check if previous level is completed
+            if (levelIndex > 0) {
+                const previousKey = `${topicIndex}-${subtopicIndex}-${levelIndex - 1}`;
+                return gameState.levelAnswers[previousKey]?.completed || false;
+            }
+            
+            // For new subtopics, check if previous subtopic's last level is completed
+            if (subtopicIndex > 0 && levelIndex === 0) {
+                const previousSubtopicLastLevel = topics[topicIndex].subtopics[subtopicIndex - 1].levels.length - 1;
+                const previousKey = `${topicIndex}-${subtopicIndex - 1}-${previousSubtopicLastLevel}`;
+                return gameState.levelAnswers[previousKey]?.completed || false;
+            }
+            
+            // For new topics, check if previous topic's last subtopic's last level is completed
+            if (topicIndex > 0 && subtopicIndex === 0 && levelIndex === 0) {
+                const previousTopic = topics[topicIndex - 1];
+                const lastSubtopicIndex = previousTopic.subtopics.length - 1;
+                const lastLevelIndex = previousTopic.subtopics[lastSubtopicIndex].levels.length - 1;
+                const previousKey = `${topicIndex - 1}-${lastSubtopicIndex}-${lastLevelIndex}`;
+                return gameState.levelAnswers[previousKey]?.completed || false;
+            }
+            
+            return true;
+        }
+
+        // Calculate total score percentage with mistakes and retakes penalty
+        function calculateTotalScore() {
+            let baseScore = (gameState.totalCorrectAnswers / gameState.totalQuestions) * 100;
+            
+            // Apply penalty for mistakes (each mistake reduces score by 2%)
+            const mistakePenalty = (gameState.mistakes - 5) * 2; // Start with 5 mistakes, each additional reduces score
+            
+            // Apply penalty for retakes (each retake reduces score by 5%)
+            const retakePenalty = gameState.retakes * 5;
+            
+            // Calculate final score with penalties
+            let finalScore = baseScore - mistakePenalty - retakePenalty;
+            
+            // Ensure score doesn't go below 0
+            finalScore = Math.max(0, finalScore);
+            
+            return Math.round(finalScore);
+        }
+
+        // Update score display
+        function updateScoreDisplay() {
+            const scoreDisplay = document.getElementById('score-display');
+            const totalScore = document.getElementById('total-score');
+            const questionsSummary = document.getElementById('questions-summary');
+            
+            const percentage = calculateTotalScore();
+            
+            totalScore.textContent = `Total Score: ${percentage}%`;
+            questionsSummary.textContent = `${gameState.totalCorrectAnswers}/${gameState.totalQuestions} Questions Correct`;
+            
+            scoreDisplay.style.display = 'block';
+        }
+
+        // Render sidebar
+        function renderSidebar() {
+            const container = document.getElementById('levels-container');
+            container.innerHTML = '';
+
+            topics.forEach((topic, topicIndex) => {
+                const topicDiv = document.createElement('div');
+                topicDiv.className = 'level';
+
+                const topicHeader = document.createElement('div');
+                topicHeader.className = 'level-header';
+                topicHeader.onclick = () => toggleTopic(topicIndex);
+                topicHeader.innerHTML = `
+                    <span>${topic.name}</span>
+                    <span class="arrow">▶</span>
+                `;
+
+                const subtopicsDiv = document.createElement('div');
+                subtopicsDiv.className = 'topics';
+                subtopicsDiv.id = `subtopics-${topicIndex}`;
+
+                topic.subtopics.forEach((subtopic, subtopicIndex) => {
+                    const subtopicDiv = document.createElement('div');
+                    subtopicDiv.className = 'subtopic-header';
+                    subtopicDiv.style.cursor = 'pointer';
+                    subtopicDiv.onclick = () => toggleSubtopic(topicIndex, subtopicIndex);
+                    subtopicDiv.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <span style="font-weight: 600; color: #E8F4FD;">${subtopic.name}</span>
+                            <span class="subtopic-arrow">▶</span>
+                        </div>
+                    `;
+                    
+                    const levelsDiv = document.createElement('div');
+                    levelsDiv.className = 'levels-container';
+                    levelsDiv.style.maxHeight = '0';
+                    levelsDiv.style.overflow = 'hidden';
+                    levelsDiv.style.transition = 'max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+                    levelsDiv.id = `levels-${topicIndex}-${subtopicIndex}`;
+
+                    subtopic.levels.forEach((level, levelIndex) => {
+                        const levelDiv = document.createElement('div');
+                        const unlocked = isLevelUnlocked(topicIndex, subtopicIndex, levelIndex);
+                        const key = `${topicIndex}-${subtopicIndex}-${levelIndex}`;
+                        const levelData = gameState.levelAnswers[key];
+                        const completed = levelData?.completed || false;
+                        
+                        levelDiv.className = `level-item ${completed ? 'completed' : ''} ${!unlocked ? 'locked' : ''}`;
+                    
+                    if (unlocked) {
+                            levelDiv.onclick = () => startLevel(topicIndex, subtopicIndex, levelIndex);
+                        }
+
+                        const correctAnswers = levelData?.correctAnswers || 0;
+                        const totalQuestions = levelData?.totalQuestions || 1;
+                        
+                                                levelDiv.innerHTML = `
+                            <div class="level-info">
+                                <span class="level-name">${level.name}</span>
+                            </div>
+                            <div class="level-stats">
+                                <span class="progress-indicator">${correctAnswers}/${totalQuestions}</span>
+                                ${levelData?.retakes > 0 ? `<span class="retake-badge">${levelData.retakes}</span>` : ''}
+                            </div>
+                        `;
+
+                        levelsDiv.appendChild(levelDiv);
+                    });
+
+                    subtopicDiv.appendChild(levelsDiv);
+                    subtopicsDiv.appendChild(subtopicDiv);
+                });
+
+                topicDiv.appendChild(topicHeader);
+                topicDiv.appendChild(subtopicsDiv);
+                container.appendChild(topicDiv);
+            });
+        }
+
+        function toggleTopic(topicIndex) {
+            const subtopicsDiv = document.getElementById(`subtopics-${topicIndex}`);
+            const topicHeader = subtopicsDiv.previousElementSibling;
+            const arrow = topicHeader.querySelector('.arrow');
+
+            if (subtopicsDiv.classList.contains('expanded')) {
+                subtopicsDiv.classList.remove('expanded');
+                topicHeader.classList.remove('active');
+                arrow.classList.remove('expanded');
+            } else {
+                // Close all other topics
+                document.querySelectorAll('.topics').forEach(div => {
+                    div.classList.remove('expanded');
+                });
+                document.querySelectorAll('.level-header').forEach(header => {
+                    header.classList.remove('active');
+                });
+                document.querySelectorAll('.arrow').forEach(arr => {
+                    arr.classList.remove('expanded');
+                });
+
+                // Open clicked topic
+                subtopicsDiv.classList.add('expanded');
+                topicHeader.classList.add('active');
+                arrow.classList.add('expanded');
+            }
+        }
+
+        function toggleSubtopic(topicIndex, subtopicIndex) {
+            const levelsDiv = document.getElementById(`levels-${topicIndex}-${subtopicIndex}`);
+            const subtopicHeader = levelsDiv.previousElementSibling;
+            const arrow = subtopicHeader.querySelector('.subtopic-arrow');
+            
+            if (levelsDiv.style.maxHeight === '0px' || levelsDiv.style.maxHeight === '') {
+                // Close all other level groups
+                document.querySelectorAll('[id^="levels-"]').forEach(div => {
+                    div.style.maxHeight = '0';
+                });
+                document.querySelectorAll('.subtopic-arrow').forEach(arr => {
+                    arr.classList.remove('expanded');
+                });
+                
+                // Open clicked subtopic with smooth animation
+                levelsDiv.style.maxHeight = '500px';
+                arrow.classList.add('expanded');
+            } else {
+                // Close current subtopic
+                levelsDiv.style.maxHeight = '0';
+                arrow.classList.remove('expanded');
+            }
+        }
+
+        function startLevel(topicIndex, subtopicIndex, levelIndex) {
+            if (!isLevelUnlocked(topicIndex, subtopicIndex, levelIndex)) return;
+
+            const key = `${topicIndex}-${subtopicIndex}-${levelIndex}`;
+            
+            // Check if this is a retake
+            if (gameState.levelAnswers[key]?.completed) {
+                gameState.levelAnswers[key].retakes++;
+                gameState.retakes++;
+            }
+
+            gameState.currentTopic = topicIndex;
+            gameState.currentSubtopic = subtopicIndex;
+            gameState.currentLevel = levelIndex;
+            gameState.currentQuestion = 0;
+            gameState.selectedAnswer = null;
+            gameState.currentLevelMistakes = 0;
+            
+            // Pre-generate questions for this level
+            gameState.currentLevelQuestions = generateQuestions(topicIndex, subtopicIndex, levelIndex);
+
+            // Update active level styling with animation
+            document.querySelectorAll('.topic').forEach(topic => {
+                topic.classList.remove('active');
+            });
+
+            // Smooth transition with fade effect
+            const welcomeScreen = document.getElementById('welcome-screen');
+            const questionContainer = document.getElementById('question-container');
+            const completionScreen = document.getElementById('completion-screen');
+
+            // If we're already in the question container, use a different transition
+            if (questionContainer.style.display === 'block') {
+                // Fade out current question
+                questionContainer.style.opacity = '0';
+                questionContainer.style.transform = 'translateY(-20px)';
+                
+                setTimeout(() => {
+                    questionContainer.style.transform = 'translateY(0)';
+                    questionContainer.style.opacity = '1';
+            loadQuestion();
+                    
+                    // Auto-expand and highlight current topic/subtopic/level in sidebar
+                    highlightCurrentTopicSubtopicAndLevel(topicIndex, subtopicIndex, levelIndex);
+                }, 300);
+            } else {
+                // Initial transition from welcome screen
+                welcomeScreen.style.opacity = '0';
+                completionScreen.style.opacity = '0';
+                
+                setTimeout(() => {
+                    welcomeScreen.style.display = 'none';
+                    completionScreen.style.display = 'none';
+                    questionContainer.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        questionContainer.style.opacity = '1';
+                        loadQuestion();
+                        
+                        // Auto-expand and highlight current topic/subtopic/level in sidebar
+                        highlightCurrentTopicSubtopicAndLevel(topicIndex, subtopicIndex, levelIndex);
+                    }, 50);
+                }, 300);
+            }
+        }
+
+        function loadQuestion() {
+            const currentQ = gameState.currentLevelQuestions[gameState.currentQuestion];
+            const topicName = topics[gameState.currentTopic].name;
+            const subtopicName = topics[gameState.currentTopic].subtopics[gameState.currentSubtopic].name;
+            const levelName = topics[gameState.currentTopic].subtopics[gameState.currentSubtopic].levels[gameState.currentLevel].name;
+
+            document.getElementById('topic-title').textContent = `${topicName} - ${subtopicName} - ${levelName}`;
+            document.getElementById('question-counter').textContent = `Question ${gameState.currentQuestion + 1} of 1`;
+            document.getElementById('question-text').textContent = currentQ.question;
+
+            // Update progress bar with animation
+            const progressPercent = (gameState.currentQuestion / 1) * 100;
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = progressPercent + '%';
+            
+            // Add progress animation
+            if (gameState.currentQuestion > 0) {
+                progressBar.style.transition = 'width 0.5s ease-in-out';
+            }
+
+            // Clear previous state with smooth transitions
+            const feedback = document.getElementById('feedback');
+            const nextBtn = document.getElementById('next-btn');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            // Hide feedback and next button immediately
+            feedback.style.display = 'none';
+            nextBtn.style.display = 'none';
+            
+            // Show submit button
+            submitBtn.style.display = 'inline-block';
+            submitBtn.disabled = true;
+            
+            gameState.selectedAnswer = null;
+
+            // Render options with staggered animation
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            currentQ.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => selectOption(index);
+                optionDiv.style.opacity = '0';
+                optionDiv.style.transform = 'translateY(20px)';
+                optionsContainer.appendChild(optionDiv);
+                
+                // Staggered animation for options
+                setTimeout(() => {
+                    optionDiv.style.transition = 'all 0.3s ease-out';
+                    optionDiv.style.opacity = '1';
+                    optionDiv.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }
+
+        function selectOption(index) {
+            gameState.selectedAnswer = index;
+            
+            // Update visual selection
+            document.querySelectorAll('.option').forEach((option, i) => {
+                option.classList.remove('selected');
+                if (i === index) {
+                    option.classList.add('selected');
+                }
+            });
+
+            document.getElementById('submit-btn').disabled = false;
+        }
+
+        function checkAnswer() {
+            const currentQ = gameState.currentLevelQuestions[gameState.currentQuestion];
+            const selectedOptionText = document.querySelectorAll('.option')[gameState.selectedAnswer].textContent;
+            const selectedValue = parseInt(selectedOptionText);
+            const isCorrect = selectedValue === currentQ.correctAnswer;
+            const key = `${gameState.currentTopic}-${gameState.currentSubtopic}-${gameState.currentLevel}`;
+
+            // Update score tracking
+            if (isCorrect) {
+                gameState.levelAnswers[key].correctAnswers++;
+                gameState.totalCorrectAnswers++;
+            } else {
+                // Track mistakes
+                gameState.mistakes++;
+                gameState.currentLevelMistakes++;
+                gameState.levelAnswers[key].mistakes++;
+            }
+
+            // Show correct/incorrect styling with animation
+            document.querySelectorAll('.option').forEach((option, i) => {
+                const optionValue = parseInt(option.textContent);
+                if (optionValue === currentQ.correctAnswer) {
+                    option.classList.add('correct');
+                    option.style.animation = 'correctPulse 0.6s ease-in-out';
+                } else if (i === gameState.selectedAnswer && !isCorrect) {
+                    option.style.animation = 'incorrectShake 0.6s ease-in-out';
+                }
+            });
+
+            // Show feedback with animation
+            const feedback = document.getElementById('feedback');
+            feedback.style.display = 'block';
+            feedback.style.opacity = '1';
+            feedback.style.animation = 'slideIn 0.5s ease-out';
+            
+            if (isCorrect) {
+                feedback.className = 'feedback correct';
+                feedback.textContent = 'Correct! Well done!';
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = `Incorrect. The correct answer is ${currentQ.correctAnswer}. Mistakes: ${gameState.mistakes}`;
+            }
+
+            // Show next button with animation
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.style.display = 'inline-block';
+            nextBtn.style.opacity = '1';
+            nextBtn.style.animation = 'slideIn 0.5s ease-out';
+            
+            // Hide submit button
+            document.getElementById('submit-btn').style.display = 'none';
+        }
+
+        function showFirstTopic() {
+            // Auto-expand first topic and start first level
+            toggleTopic(0);
+            setTimeout(() => {
+                startLevel(0, 0, 0);
+            }, 300);
+        }
+
+        // Auto-progress to next available level/subtopic/topic
+        function autoProgressToNext() {
+            const currentTopic = gameState.currentTopic;
+            const currentSubtopic = gameState.currentSubtopic;
+            const currentLevel = gameState.currentLevel;
+            
+            // Check if next level is available in current subtopic
+            if (currentLevel + 1 < topics[currentTopic].subtopics[currentSubtopic].levels.length) {
+                const nextLevel = currentLevel + 1;
+                if (isLevelUnlocked(currentTopic, currentSubtopic, nextLevel)) {
+                    setTimeout(() => {
+                        startLevel(currentTopic, currentSubtopic, nextLevel);
+                    }, 2000); // Wait 2 seconds before auto-progressing
+                    return;
+                }
+            }
+            
+            // Check if next subtopic is available in current topic
+            if (currentSubtopic + 1 < topics[currentTopic].subtopics.length) {
+                const nextSubtopic = currentSubtopic + 1;
+                const nextLevel = 0; // Start from first level of next subtopic
+                if (isLevelUnlocked(currentTopic, nextSubtopic, nextLevel)) {
+                    setTimeout(() => {
+                        startLevel(currentTopic, nextSubtopic, nextLevel);
+                    }, 2000);
+                    return;
+                }
+            }
+            
+            // Check if next topic is available
+            if (currentTopic + 1 < topics.length) {
+                const nextTopic = currentTopic + 1;
+                const nextSubtopic = 0; // Start from first subtopic of next topic
+                const nextLevel = 0; // Start from first level of first subtopic
+                if (isLevelUnlocked(nextTopic, nextSubtopic, nextLevel)) {
+                    setTimeout(() => {
+                        startLevel(nextTopic, nextSubtopic, nextLevel);
+                    }, 2000);
+                    return;
+                }
+            }
+            
+            // If no more progression is possible, show completion screen
+            setTimeout(() => {
+                showFinalCompletionScreen();
+            }, 2000);
+        }
+
+        function highlightCurrentTopicSubtopicAndLevel(topicIndex, subtopicIndex, levelIndex) {
+            // Close all topics first
+            document.querySelectorAll('.topics').forEach(div => {
+                div.classList.remove('expanded');
+            });
+            document.querySelectorAll('.level-header').forEach(header => {
+                header.classList.remove('active');
+            });
+            document.querySelectorAll('.arrow').forEach(arr => {
+                arr.classList.remove('expanded');
+            });
+
+            // Expand the current topic
+            const currentSubtopicsDiv = document.getElementById(`subtopics-${topicIndex}`);
+            const currentTopicHeader = currentSubtopicsDiv.previousElementSibling;
+            const currentArrow = currentTopicHeader.querySelector('.arrow');
+
+            if (currentSubtopicsDiv && currentTopicHeader && currentArrow) {
+                currentSubtopicsDiv.classList.add('expanded');
+                currentTopicHeader.classList.add('active');
+                currentArrow.classList.add('expanded');
+            }
+
+            // Expand the current subtopic
+            const currentLevelsDiv = document.getElementById(`levels-${topicIndex}-${subtopicIndex}`);
+            if (currentLevelsDiv) {
+                currentLevelsDiv.style.maxHeight = '500px';
+                // Also rotate the arrow
+                const subtopicHeader = currentLevelsDiv.previousElementSibling;
+                const arrow = subtopicHeader.querySelector('.subtopic-arrow');
+                if (arrow) {
+                    arrow.classList.add('expanded');
+                }
+            }
+
+            // Highlight the current level
+            document.querySelectorAll('.topic').forEach(topic => {
+                topic.classList.remove('active');
+            });
+
+            const currentLevel = currentLevelsDiv?.querySelector('.topic');
+            if (currentLevel) {
+                currentLevel.classList.add('active');
+            }
+
+            // Scroll to the current topic if needed
+            setTimeout(() => {
+                currentTopicHeader.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'nearest' 
+                });
+            }, 100);
+        }
+
+        function nextQuestion() {
+            gameState.currentQuestion++;
+
+            if (gameState.currentQuestion >= 1) {
+                // Level completed
+                const key = `${gameState.currentTopic}-${gameState.currentSubtopic}-${gameState.currentLevel}`;
+                gameState.levelAnswers[key].completed = true;
+                
+                // Check if all levels are completed
+                const allCompleted = Object.values(gameState.levelAnswers).every(level => level.completed);
+                
+                if (allCompleted) {
+                    showFinalCompletionScreen();
+                } else {
+                    // Show completion message briefly, then auto-progress
+                    showBriefCompletionMessage();
+                    autoProgressToNext();
+                }
+                
+                renderSidebar();
+            } else {
+                // Smooth transition to next question
+                const questionCard = document.getElementById('question-card');
+                questionCard.style.opacity = '0';
+                questionCard.style.transform = 'translateX(-20px)';
+                
+                setTimeout(() => {
+                loadQuestion();
+                    questionCard.style.opacity = '1';
+                    questionCard.style.transform = 'translateX(0)';
+                }, 300);
+            }
+        }
+
+        function showLevelTransitionMessage(nextTopic, nextSubtopic, nextLevel) {
+            const questionContainer = document.getElementById('question-container');
+            const welcomeScreen = document.getElementById('welcome-screen');
+            
+            // Smooth fade out
+            questionContainer.style.opacity = '0';
+            questionContainer.style.transform = 'translateY(-20px)';
+            
+            setTimeout(() => {
+                questionContainer.style.display = 'none';
+                welcomeScreen.style.display = 'block';
+                
+                welcomeScreen.innerHTML = `
+                    <h2>🎉 Level Completed!</h2>
+                    <p>Excellent work! You've mastered this level. The next level is now unlocked!</p>
+                    <div style="margin: 20px 0; padding: 20px; background: rgba(58, 164, 76, 0.1); border-radius: 10px;">
+                        <h3>Current Stats:</h3>
+                        <p>Mistakes: ${gameState.mistakes} | Retakes: ${gameState.retakes}</p>
+                        <p>Score: ${calculateTotalScore()}%</p>
+                    </div>
+                    <button class="submit-btn" onclick="startLevel(${nextTopic}, ${nextSubtopic}, ${nextLevel})" style="margin-top: 30px; font-size: 18px; padding: 20px 40px;">
+                        Continue to Next Level 🚀
+                    </button>
+                `;
+                
+                // Smooth fade in
+                welcomeScreen.style.opacity = '0';
+                setTimeout(() => {
+                    welcomeScreen.style.opacity = '1';
+                    welcomeScreen.style.transform = 'translateY(0)';
+                }, 50);
+                
+                // Auto-continue to next level after 3 seconds
+                setTimeout(() => {
+                    startLevel(nextTopic, nextSubtopic, nextLevel);
+                }, 3000);
+            }, 300);
+        }
+
+        function showSubtopicTransitionMessage(nextTopic, nextSubtopic, nextLevel) {
+            const questionContainer = document.getElementById('question-container');
+            const welcomeScreen = document.getElementById('welcome-screen');
+            
+            // Smooth fade out
+            questionContainer.style.opacity = '0';
+            questionContainer.style.transform = 'translateY(-20px)';
+            
+            setTimeout(() => {
+                questionContainer.style.display = 'none';
+                welcomeScreen.style.display = 'block';
+                
+                const subtopicName = topics[nextTopic].subtopics[nextSubtopic].name;
+                
+                welcomeScreen.innerHTML = `
+                    <h2>🎉 Subtopic Completed!</h2>
+                    <p>Great job! You've finished this subtopic. The next subtopic "${subtopicName}" is now unlocked!</p>
+                    <div style="margin: 20px 0; padding: 20px; background: rgba(58, 164, 76, 0.1); border-radius: 10px;">
+                        <h3>Current Stats:</h3>
+                        <p>Mistakes: ${gameState.mistakes} | Retakes: ${gameState.retakes}</p>
+                        <p>Score: ${calculateTotalScore()}%</p>
+                    </div>
+                    <button class="submit-btn" onclick="startLevel(${nextTopic}, ${nextSubtopic}, ${nextLevel})" style="margin-top: 30px; font-size: 18px; padding: 20px 40px;">
+                        Continue to ${subtopicName} 🚀
+                    </button>
+                `;
+                
+                // Smooth fade in
+                welcomeScreen.style.opacity = '0';
+                setTimeout(() => {
+                    welcomeScreen.style.opacity = '1';
+                    welcomeScreen.style.transform = 'translateY(0)';
+                }, 50);
+                
+                // Auto-continue to next subtopic after 3 seconds
+                setTimeout(() => {
+                    startLevel(nextTopic, nextSubtopic, nextLevel);
+                }, 3000);
+            }, 300);
+        }
+
+        function showTopicTransitionMessage(nextTopic, nextSubtopic, nextLevel) {
+            const questionContainer = document.getElementById('question-container');
+            const welcomeScreen = document.getElementById('welcome-screen');
+            
+            // Smooth fade out
+            questionContainer.style.opacity = '0';
+            questionContainer.style.transform = 'translateY(-20px)';
+            
+            setTimeout(() => {
+                questionContainer.style.display = 'none';
+                welcomeScreen.style.display = 'block';
+                
+                const topicName = topics[nextTopic].name;
+                
+                welcomeScreen.innerHTML = `
+                    <h2>🎉 Topic Completed!</h2>
+                    <p>Amazing work! You've finished this topic. The next topic "${topicName}" is now unlocked!</p>
+                    <div style="margin: 20px 0; padding: 20px; background: rgba(58, 164, 76, 0.1); border-radius: 10px;">
+                        <h3>Current Stats:</h3>
+                        <p>Mistakes: ${gameState.mistakes} | Retakes: ${gameState.retakes}</p>
+                        <p>Score: ${calculateTotalScore()}%</p>
+                    </div>
+                    <button class="submit-btn" onclick="startLevel(${nextTopic}, ${nextSubtopic}, ${nextLevel})" style="margin-top: 30px; font-size: 18px; padding: 20px 40px;">
+                        Continue to ${topicName} 🚀
+                    </button>
+                `;
+                
+                // Smooth fade in
+                welcomeScreen.style.opacity = '0';
+                setTimeout(() => {
+                    welcomeScreen.style.opacity = '1';
+                    welcomeScreen.style.transform = 'translateY(0)';
+                }, 50);
+                
+                // Auto-continue to next topic after 3 seconds
+                setTimeout(() => {
+                    startLevel(nextTopic, nextSubtopic, nextLevel);
+                }, 3000);
+            }, 300);
+        }
+
+        function showBriefCompletionMessage() {
+            // Show a brief completion overlay on top of the question container
+            const questionContainer = document.getElementById('question-container');
+            
+            // Create completion overlay
+            let overlay = document.getElementById('completion-overlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'completion-overlay';
+                overlay.style.cssText = `
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(58, 164, 76, 0.95);
+                    color: white;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    border-radius: 12px;
+                    z-index: 10;
+                    opacity: 0;
+                    transform: scale(0.8);
+                    transition: all 0.5s ease-out;
+                `;
+                questionContainer.style.position = 'relative';
+                questionContainer.appendChild(overlay);
+            }
+            
+            const topicName = topics[gameState.currentTopic].name;
+            const subtopicName = topics[gameState.currentTopic].subtopics[gameState.currentSubtopic].name;
+            const levelName = topics[gameState.currentTopic].subtopics[gameState.currentSubtopic].levels[gameState.currentLevel].name;
+            
+            overlay.innerHTML = `
+                <h2 style="font-size: 32px; margin-bottom: 20px;">🎉 Level Completed!</h2>
+                <p style="font-size: 18px; margin-bottom: 15px;">${topicName} - ${subtopicName} - ${levelName}</p>
+                <div style="background: rgba(255, 255, 255, 0.2); padding: 20px; border-radius: 10px; margin: 20px 0;">
+                    <p style="margin: 5px 0;">Mistakes: ${gameState.mistakes} | Retakes: ${gameState.retakes}</p>
+                    <p style="margin: 5px 0;">Score: ${calculateTotalScore()}%</p>
+                </div>
+                <p style="font-size: 16px; opacity: 0.9;">Moving to next level automatically...</p>
+            `;
+            
+            // Show overlay with animation
+            overlay.style.display = 'flex';
+            setTimeout(() => {
+                overlay.style.opacity = '1';
+                overlay.style.transform = 'scale(1)';
+            }, 50);
+            
+            // Hide overlay after 2 seconds
+            setTimeout(() => {
+                overlay.style.opacity = '0';
+                overlay.style.transform = 'scale(0.8)';
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 500);
+            }, 2000);
+        }
+
+        function showLevelCompletionMessage() {
+            document.getElementById('question-container').style.display = 'none';
+            document.getElementById('welcome-screen').style.display = 'block';
+            
+            const welcomeScreen = document.getElementById('welcome-screen');
+            welcomeScreen.innerHTML = `
+                <h2>🎉 Level Completed!</h2>
+                <p>Great job! You've finished this level. Select the next level from the sidebar to continue!</p>
+                <div style="margin: 20px 0; padding: 20px; background: rgba(58, 164, 76, 0.1); border-radius: 10px;">
+                    <h3>Current Stats:</h3>
+                    <p>Mistakes: ${gameState.mistakes} | Retakes: ${gameState.retakes}</p>
+                    <p>Score: ${calculateTotalScore()}%</p>
+                </div>
+                <p style="margin-top: 20px; color: #666;">Select the next level from the sidebar to continue.</p>
+            `;
+        }
+
+        function showFinalCompletionScreen() {
+            document.getElementById('question-container').style.display = 'none';
+            document.getElementById('completion-screen').style.display = 'block';
+            
+            const percentage = calculateTotalScore();
+            document.getElementById('final-score-display').textContent = `${percentage}%`;
+            document.getElementById('final-questions-summary').textContent = 
+                `${gameState.totalCorrectAnswers}/${gameState.totalQuestions} Questions Correct`;
+            
+            // Add detailed stats
+            const scoreSummary = document.querySelector('.score-summary');
+            const statsDiv = document.createElement('div');
+            statsDiv.style.marginTop = '20px';
+            statsDiv.style.padding = '15px';
+            statsDiv.style.background = 'rgba(0, 45, 98, 0.1)';
+            statsDiv.style.borderRadius = '8px';
+            statsDiv.innerHTML = `
+                <h4 style="color: #002D62; margin-bottom: 10px;">Detailed Performance:</h4>
+                <p><strong>Total Mistakes:</strong> ${gameState.mistakes}</p>
+                <p><strong>Total Retakes:</strong> ${gameState.retakes}</p>
+                <p><strong>Base Score:</strong> ${Math.round((gameState.totalCorrectAnswers / gameState.totalQuestions) * 100)}%</p>
+                <p><strong>Mistake Penalty:</strong> -${(gameState.mistakes - 5) * 2}%</p>
+                <p><strong>Retake Penalty:</strong> -${gameState.retakes * 5}%</p>
+                <p><strong>Final Score:</strong> ${percentage}%</p>
+            `;
+            scoreSummary.appendChild(statsDiv);
+        }
+
+        // Certificate Functions
+        function showCertificateModal() {
+            document.getElementById('certificate-modal').style.display = 'flex';
+            document.getElementById('certificate-date').textContent = 
+                `Completed on ${new Date().toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                })}`;
+            
+            const percentage = calculateTotalScore();
+            document.getElementById('certificate-score').textContent = `${percentage}%`;
+        }
+
+        function closeCertificateModal() {
+            document.getElementById('certificate-modal').style.display = 'none';
+        }
+
+        function updateCertificateName() {
+            const name = document.getElementById('student-name').value;
+            const display = document.getElementById('certificate-name-display');
+            display.textContent = name || 'Enter Your Name Above';
+        }
+
+        function downloadCertificate() {
+            const name = document.getElementById('student-name').value;
+            if (!name.trim()) {
+                alert('Please enter your name first!');
+                return;
+            }
+
+            // Create a new window for printing
+            const printWindow = window.open('', '_blank');
+            const certificate = document.getElementById('certificate').cloneNode(true);
+            
+            // Remove input field and buttons for printing
+            const nameInput = certificate.querySelector('.name-input');
+            const closeBtn = certificate.querySelector('.close-certificate');
+            const downloadBtn = certificate.querySelector('.download-certificate');
+            
+            nameInput.style.display = 'none';
+            closeBtn.style.display = 'none';
+            downloadBtn.style.display = 'none';
+            
+            // Set the name permanently
+            const nameDisplay = certificate.querySelector('.certificate-name');
+            nameDisplay.textContent = name;
+            nameDisplay.style.border = '2px solid #3AA44C';
+
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Certificate - ${name}</title>
+                    <style>
+                        body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+                        .certificate {
+                            background: linear-gradient(135deg, #FFFFFF 0%, #F4F4F4 100%);
+                            width: 800px;
+                            height: 600px;
+                            border: 8px solid #002D62;
+                            border-radius: 20px;
+                            padding: 40px;
+                            text-align: center;
+                            position: relative;
+                            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+                            margin: 0 auto;
+                        }
+                        .certificate-header {
+                            color: #002D62;
+                            font-size: 36px;
+                            font-weight: bold;
+                            margin-bottom: 20px;
+                            border-bottom: 3px solid #3AA44C;
+                            padding-bottom: 10px;
+                        }
+                        .certificate-title {
+                            color: #333333;
+                            font-size: 24px;
+                            margin-bottom: 30px;
+                        }
+                        .certificate-name {
+                            color: #002D62;
+                            font-size: 32px;
+                            font-weight: bold;
+                            margin: 20px 0;
+                            padding: 15px;
+                            border: 2px solid #3AA44C;
+                            border-radius: 10px;
+                        }
+                        .certificate-details {
+                            color: #333333;
+                            font-size: 18px;
+                            margin: 20px 0;
+                            line-height: 1.6;
+                        }
+                        .certificate-score {
+                            font-size: 48px;
+                            color: #3AA44C;
+                            font-weight: bold;
+                            margin: 20px 0;
+                        }
+                        .certificate-date {
+                            color: #666666;
+                            font-size: 16px;
+                            margin-top: 30px;
+                        }
+                        @media print {
+                            body { margin: 0; }
+                            .certificate { box-shadow: none; margin: 0; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${certificate.outerHTML}
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            
+            // Auto-print after a short delay
+            setTimeout(() => {
+                printWindow.print();
+            }, 500);
+        }
+
+        // Initialize the app
+        function init() {
+            initializeLevelAnswers();
+            renderSidebar();
+            // Removed updateScoreDisplay() call
+        }
+
+        // Start the app
+        init();
+    </script>
+</body>
+</html>
